@@ -1,13 +1,13 @@
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.itrsgroup.openaccess.Callback;
 import com.itrsgroup.openaccess.Connection;
 import com.itrsgroup.openaccess.ErrorCallback;
 import com.itrsgroup.openaccess.OpenAccess;
-import com.itrsgroup.openaccess.dataset.DataSetChange;
-import com.itrsgroup.openaccess.dataset.DataSetItem;
-import com.itrsgroup.openaccess.dataset.DataSetQuery;
+import com.itrsgroup.openaccess.dataview.DataViewChange;
+import com.itrsgroup.openaccess.dataview.DataViewQuery;
 
 public final class SimpleBridgeMain {
 
@@ -27,40 +27,31 @@ public final class SimpleBridgeMain {
 			/* customer defined list of 50+ XPaths that match 20 000+ DataViews */
 			ArrayList<String> initialXPaths = new ArrayList<String>();
 			
-			// test with a single XPath
+			// test with two XPaths
 			initialXPaths.add("/geneos/gateway/directory/probe[(@name=\"gateway-1-probe-1\")]/managedEntity/sampler[(@type=\"\")]/dataview[(@name=\"UpdateTest\")]");
-		
-			/* all XPaths 20 000+ */
-			final ArrayList<String> allXPaths = new ArrayList<String>();
+			initialXPaths.add("/geneos/gateway/directory/probe[(@name=\"gateway-1-probe-2\")]/managedEntity/sampler[(@type=\"\")]/dataview[(@name=\"UpdateTest\")]");
+			
+			/* all XPaths 20 000+, every XPath matches a single DataView */
+			final Set<String> allXPaths = new HashSet<String>();
 			
 		/*
-		 * For each XPath, get a list of all the matching DataViews (which are 0 or many),
-		 * get the XPath of each one of the matching DataViews
-		 */
-			
+		 * For each XPath, get a list of the XPaths of all matching DataViews (0 or many)
+		 */	
 		for(String path : initialXPaths){
 			
-			/* get the XPaths of all DataViews that match this customer defined XPath*/
-			/* if the result is bigger than 128 kilobytes it will not work */
+			/* get the XPaths of all DataViews that match this customer defined XPaths */
 			
-			DataSetQuery query = DataSetQuery.create(path);
-			
-	        conn.execute(query,
-	                new Callback<DataSetChange>() {
-	                    @Override
-	                    public void callback(final DataSetChange change) {
-	                    	
-	                    	List<DataSetItem> matchingDataViews = new ArrayList<DataSetItem>();
-	                    	
-	                    		matchingDataViews = change.getItems(); 
+			DataViewQuery query = DataViewQuery.create(path);
 
-	                    		/* add each DataView's XPath to the unified list of XPaths */
-	                    		for(DataSetItem item : matchingDataViews)
-	                    			allXPaths.add(item.getPath());
-	                    	
-	                    		// test
-	                    		for(String s : allXPaths)
-	                    			System.out.println(s);
+	        conn.execute(query,
+	                new Callback<DataViewChange>() {
+	                    @Override
+	                    public void callback(final DataViewChange change) {
+	                    		                    		
+	                    		
+	                    	allXPaths.add(change.getSourceId());
+	                    		
+	                    	System.out.println(allXPaths.size());
 	                    		
 	                    }
 	                },
