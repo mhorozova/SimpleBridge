@@ -1,8 +1,11 @@
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import com.itrsgroup.openaccess.Callback;
+import com.itrsgroup.openaccess.Closable;
 import com.itrsgroup.openaccess.Connection;
 import com.itrsgroup.openaccess.ErrorCallback;
 import com.itrsgroup.openaccess.OpenAccess;
@@ -15,7 +18,6 @@ public final class SimpleBridgeMain {
 
 		/* 1. Connect to cluster */
 		Connection conn = OpenAccess.connect("geneos.cluster://192.168.220.41:2551?username=admin&password=admin");
-		
 
 		/* 2. Get a list of all DataViews */
 		
@@ -37,21 +39,20 @@ public final class SimpleBridgeMain {
 		/*
 		 * For each XPath, get a list of the XPaths of all matching DataViews (0 or many)
 		 */	
-		for(String path : initialXPaths){
+		for(final String path : initialXPaths){
 			
-			/* get the XPaths of all DataViews that match this customer defined XPaths */
+			CountDownLatch latch = new CountDownLatch(1);
 			
 			DataViewQuery query = DataViewQuery.create(path);
 
-	        conn.execute(query,
+	        Closable closable = conn.execute(query,
 	                new Callback<DataViewChange>() {
 	                    @Override
-	                    public void callback(final DataViewChange change) {
-	                    		                    		
+	                    public void callback(final DataViewChange change) {	                    		
 	                    		
 	                    	allXPaths.add(change.getSourceId());
 	                    		
-	                    	System.out.println(allXPaths.size());
+	                    	System.out.println(allXPaths.size() + path);
 	                    		
 	                    }
 	                },
@@ -62,9 +63,28 @@ public final class SimpleBridgeMain {
 	                    }
 	                }
 	        );
+	        
+	        /* how to ensure that the query is closed and no more updates
+	         * are received once we get all the matching DataViews? */
+	        
+	        //close the closable after e.g. 5 seconds?
+			try {
+				boolean result = latch.await(5, TimeUnit.SECONDS); 
+				if (result) {
+					System.out.println("Latch triggered - should be impossible");
+				} else {
+					System.out.println("Latch timed out");
+				}
+			} catch (InterruptedException e) {
+				System.err
+				.println("Interrupted exception when waiting for POPULATED");
+			} finally {
+				System.out.println("Finished with "+path);
+				closable.close(); 
+			}
+	        
 		}
 		
-		//final String path = "/geneos/gateway/directory/probe/managedEntity/sampler/dataview[(@name=\"LicenceUsage\")]";
 
 		/* 3. Iterate over that list */
 		// execute a query with each of these XPaths which match only 1 DataView at a time
