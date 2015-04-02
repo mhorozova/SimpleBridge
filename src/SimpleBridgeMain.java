@@ -1,3 +1,5 @@
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -5,7 +7,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -15,11 +16,17 @@ import com.itrsgroup.openaccess.Closable;
 import com.itrsgroup.openaccess.Connection;
 import com.itrsgroup.openaccess.ErrorCallback;
 import com.itrsgroup.openaccess.OpenAccess;
+import com.itrsgroup.openaccess.dataview.DataView;
 import com.itrsgroup.openaccess.dataview.DataViewChange;
 import com.itrsgroup.openaccess.dataview.DataViewQuery;
+import com.itrsgroup.openaccess.dataview.DataViewTracker;
 
 public final class SimpleBridgeMain {
 
+    private final DataViewTracker tracker = new DataViewTracker();
+    private final CountDownLatch cdl = new CountDownLatch(1);
+    private DataView DataView;
+	
 	public static void main(final String[] args) {
 
 		/* 1. Connect to cluster */
@@ -59,61 +66,56 @@ public final class SimpleBridgeMain {
 		/* 3. Iterate over that set of XPaths */
 		// execute a query with each of these XPaths which match **only 1 DataView at a time**
 		
-		final Iterator iterator = allXPaths.iterator();
-		
-		for(String xpath : allXPaths){
-		
-		final CountDownLatch latch = new CountDownLatch(1);
-			
-		DataViewQuery query = DataViewQuery.create((String) iterator.next());
-
-		Closable closable = conn.execute(query,
-				new Callback<DataViewChange>() {
-			@Override
-			public void callback(final DataViewChange change) {
-
-				latch.countDown();
-				/* 4. Write output to file */
-				System.out.println(change.getData().toString());
-				System.out.println("Data obtained at "+System.currentTimeMillis());
-
-				Writer writer = null;
-
-				try {
-					writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("outputFiles/"+((String) iterator.next()).replace('\\', '-').replace('/', '-').replace('"', ' '))));
-					writer.write(change.getData().toString());
-					writer.close();
-
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				} finally {
-					try {writer.close();} catch (Exception ex) {}
-				}
-			}
-		},
-		new ErrorCallback() {
-			@Override
-			public void error(final Exception exception) {
-				System.err.println("Error retrieving DataSet: " + exception);
-			}
-		}
-				);
-		
-        //close the query after the DataView has been queried and written to file
-		try {
-			latch.await(); 
-		} catch (InterruptedException e) {
-			System.err
-			.println("Interrupted exception while waiting the latch");
-		} finally {
-			//System.out.println("Finished writing "+xpath);
-			closable.close();
-			//System.out.println("Total number of DataViews' XPaths so far: " + allXPaths.size());
-		}
-
-		}
+        iterateAndWrite(conn, allXPaths);
 
 	}
+
+	private static void iterateAndWrite(Connection conn,
+			final Set<String> allXPaths) {
+		for(String s : allXPaths){
+        	
+        DataViewQuery query = DataViewQuery.create(s);
+        DataView DataView = new SimpleBridgeMain().request(conn, query, 5, SECONDS);
+        System.out.println(DataView);
+        Writer writer = null;
+        
+		try {
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("outputFiles/"+s.replace('\\', '-').replace('/', '-').replace('"', ' '))));
+			writer.write(DataView.toString());
+			writer.close();
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			try {writer.close();} catch (Exception ex) {}
+		}
+        
+        }
+	}
+	
+    public DataView request(Connection conn, DataViewQuery query, long timeout, TimeUnit timeUnit) {
+        Closable c = conn.execute(query,
+                new Callback<DataViewChange>() {
+                    public void callback(final DataViewChange data) {
+                        DataView = tracker.update(data);
+                        //System.out.println(DataView);
+                        // TODO: Determine if we are 'done' here by examining DataView.
+                        // Once the condition is fulfilled, you can call cdl.countDown...
+                        cdl.countDown();
+                    }
+                }, null // Ignore errors, return null
+        );
+
+        try {
+            cdl.await(timeout, timeUnit);
+            c.close();
+            System.out.println("CLOSED query");
+        } catch (InterruptedException e) {
+            // Ignore errors, return null
+        }
+
+        return DataView;
+    }
 
 	private static void getAllMatchingDataViewsXPaths(Connection conn,
 			ArrayList<String> initialXPaths, final Set<String> allXPaths) {
