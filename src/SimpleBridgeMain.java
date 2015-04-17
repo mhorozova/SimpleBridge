@@ -11,6 +11,10 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+
 import com.itrsgroup.openaccess.Callback;
 import com.itrsgroup.openaccess.Closable;
 import com.itrsgroup.openaccess.Connection;
@@ -25,14 +29,14 @@ import com.itrsgroup.openaccess.dataview.DataViewTracker;
  * @author mhorozova
  *
  */
-public final class SimpleBridgeMain {
+public final class SimpleBridgeMain implements Job{
 
 	private final DataViewTracker tracker = new DataViewTracker();
 	private final CountDownLatch cdl = new CountDownLatch(1);
 	private DataView DataView;
 
-	public static void main(final String[] args) {
-
+	@Override
+	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		/* 1. Connect to cluster */
 		Connection conn = OpenAccess.connect("geneos.cluster://192.168.220.41:2551?username=admin&password=admin");
 
