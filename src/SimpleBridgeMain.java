@@ -19,7 +19,6 @@ import com.itrsgroup.openaccess.Callback;
 import com.itrsgroup.openaccess.Closable;
 import com.itrsgroup.openaccess.Connection;
 import com.itrsgroup.openaccess.ErrorCallback;
-import com.itrsgroup.openaccess.OpenAccess;
 import com.itrsgroup.openaccess.dataview.DataView;
 import com.itrsgroup.openaccess.dataview.DataViewChange;
 import com.itrsgroup.openaccess.dataview.DataViewQuery;
@@ -37,9 +36,6 @@ public final class SimpleBridgeMain implements Job{
 
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		/* 1. Connect to cluster */
-		Connection conn = OpenAccess.connect("geneos.cluster://192.168.220.41:2551?username=admin&password=admin");
-
 
 
 
@@ -67,7 +63,7 @@ public final class SimpleBridgeMain implements Job{
 		/*
 		 * For each XPath, get a list of the XPaths of all matching DataViews (0 or many)
 		 */	
-		getAllMatchingDataViewsXPaths(conn, initialXPaths, allXPaths, 5);
+		getAllMatchingDataViewsXPaths(Main.conn, initialXPaths, allXPaths, 5);
 
 
 
@@ -76,7 +72,7 @@ public final class SimpleBridgeMain implements Job{
 		/* 3. Iterate over that set of XPaths */
 		// execute a query with each of these XPaths which match **only 1 DataView at a time**
 
-		iterateExecuteWrite(conn, allXPaths);
+		iterateExecuteWrite(Main.conn, allXPaths);
 
 	}
 
@@ -173,7 +169,6 @@ public final class SimpleBridgeMain implements Job{
 		}
 		
 		System.out.println("FINISHED");
-		conn.close();
 	}
 
 	/**
