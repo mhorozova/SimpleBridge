@@ -8,7 +8,6 @@ import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
-
 public class Quartz {
 
 	public static void startScheduler() throws InterruptedException{
@@ -26,14 +25,14 @@ public class Quartz {
 	            .withIdentity("trigger1", "group1")
 	            .startNow()
 	            .withSchedule(simpleSchedule()
-	                    .withIntervalInSeconds(60) // how often should the job repeat (once every x seconds) - seems to be important for a job to begin once the previous one has finished
+	                    .withIntervalInSeconds(30) // how often should the job repeat (once every x seconds) - seems to be important for a job to begin once the previous one has finished
 	                    .repeatForever())
 	            .build();
 
 	        scheduler.scheduleJob(job, trigger); // Tell quartz to schedule the job using our trigger
 	        
 	        try {
-				Thread.sleep(120);
+				Thread.sleep(1200000000);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
