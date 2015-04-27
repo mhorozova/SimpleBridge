@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.quartz.Job;
@@ -19,17 +18,12 @@ import com.itrsgroup.openaccess.ErrorCallback;
 import com.itrsgroup.openaccess.dataview.DataView;
 import com.itrsgroup.openaccess.dataview.DataViewChange;
 import com.itrsgroup.openaccess.dataview.DataViewQuery;
-import com.itrsgroup.openaccess.dataview.DataViewTracker;
 
 /**
  * @author mhorozova
  *
  */
 public final class SimpleBridgeMain implements Job{
-
-	private final DataViewTracker tracker = new DataViewTracker();
-	private final CountDownLatch cdl = new CountDownLatch(1);
-	private DataView DataView;
 
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
@@ -41,7 +35,7 @@ public final class SimpleBridgeMain implements Job{
 		/* 3. Iterate over that set of XPaths */
 		// execute a query with each of these XPaths which match **only 1 DataView at a time**
 
-		ExecuteAndWrite(Main.conn, Main.allXPaths, 4);
+		executeAndWrite(Main.conn, Main.allXPaths, 4);
 
 	}
 
@@ -60,7 +54,7 @@ public final class SimpleBridgeMain implements Job{
 	 * @param conn
 	 * @param allXPaths
 	 */
-	private static void ExecuteAndWrite(Connection conn, final Set<String> allXPaths, int timeout) {
+	private static void executeAndWrite(Connection conn, final Set<String> allXPaths, int timeout) {
 
 		for(String s : allXPaths){
 
@@ -113,9 +107,9 @@ public final class SimpleBridgeMain implements Job{
 				new Callback<DataViewChange>() {
 			public void callback(final DataViewChange data) {
 				// mutable DataView
-				DataView = tracker.update(data);
+				Main.DataView = Main.tracker.update(data);
 				//System.out.println(DataView);
-				cdl.countDown();
+				Main.cdl.countDown();
 			}
 		},                 new ErrorCallback() {
 			@Override
@@ -126,13 +120,13 @@ public final class SimpleBridgeMain implements Job{
 				);
 
 		try {
-			cdl.await(timeout, timeUnit);
+			Main.cdl.await(timeout, timeUnit);
 			c.close();
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			System.out.println("Something's wrong... Interrupted while waiting for updates");
 			e.printStackTrace();
 		}
 
-		return DataView;
+		return Main.DataView;
 	}
 }
