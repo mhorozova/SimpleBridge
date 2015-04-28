@@ -70,6 +70,7 @@ public final class SimpleBridgeMain implements Job{
 				System.out.println("Writing");
 				try{
 					Main.writer.write(DataView.toString());
+					System.out.println("DataView is: "+DataView.toString());
 				} catch(Exception e){
 					System.out.println("Problem writing to file");
 				}
