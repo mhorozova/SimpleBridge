@@ -16,7 +16,7 @@ public class Quartz {
 	        Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler(); // Grab the Scheduler instance from the Factory
 	        scheduler.start(); // and start it off
 
-	        JobDetail job = newJob(SimpleBridgeMain.class) // define the job and tie it to our HelloJob class
+	        JobDetail job = newJob(RepetitiveRun.class) // define the job and tie it to our HelloJob class
 	        	.requestRecovery()// ask scheduler to re-execute this job
 	            .withIdentity("job1", "group1")
 	            .build();
