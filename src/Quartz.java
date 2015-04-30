@@ -25,7 +25,7 @@ public class Quartz {
 	            .withIdentity("trigger1", "group1")
 	            .startNow()
 	            .withSchedule(simpleSchedule()
-	                    .withIntervalInSeconds(30) // how often should the job repeat (once every x seconds) - seems to be important for a job to begin once the previous one has finished
+	                    .withIntervalInSeconds(2) // how often should the job repeat (once every x seconds) - seems to be important for a job to begin once the previous one has finished
 	                    .repeatForever())
 	            .build();
 
