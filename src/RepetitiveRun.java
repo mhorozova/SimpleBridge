@@ -1,10 +1,4 @@
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.FileNotFoundException;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -31,13 +25,12 @@ public final class RepetitiveRun implements Job{
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 
-		for(String s : Main.initialXPaths)
-			System.out.println(s);
-//		
-//		System.out.println("ALL XPATHS:");
-//		
-//		for(String s : Main.allXPaths)
-//			System.out.println(s);
+		try {
+			executeWrite(Main.conn, Main.allXPaths);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
@@ -54,28 +47,38 @@ public final class RepetitiveRun implements Job{
 	 * 
 	 * @param conn
 	 * @param allXPaths
+	 * @throws FileNotFoundException 
 	 */
-	private static void iterateExecuteWrite(Connection conn, final Set<String> allXPaths) {
-		for(String s : allXPaths){
+	private static void executeWrite(Connection conn, final Set<String> allXPaths) throws FileNotFoundException {
+//		for(String s : allXPaths){
+//
+//			Main.query = DataViewQuery.create(s);
+//
+//			Main.dataView = request(conn, Main.query, 2, SECONDS);
+//
+//			System.out.println(Main.dataView);
+			
+//			PrintWriter out = new PrintWriter("filename.txt");
+			
+//			BufferedWriter writer = null;
+//
+//			try {
+//				writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("outputFiles/"+s.replace('\\', '-').replace('/', '-').replace('"', ' '))));
+//				writer.write(DataView.toString());
+//				
+//				writer.flush();
+//				writer.close();
+//				
+//			} catch (IOException ex) {
+//				ex.printStackTrace();
+//			} finally {
+//				try {
+//					
+//					writer.close();
+//					} catch (Exception ex) { System.out.println("Error while trying to close writer: " + ex); }
+//			}
 
-			DataViewQuery query = DataViewQuery.create(s);
-
-			DataView DataView = new RepetitiveRun().request(conn, query, 2, SECONDS);
-
-			Writer writer = null;
-
-			try {
-				writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("outputFiles/"+s.replace('\\', '-').replace('/', '-').replace('"', ' '))));
-				writer.write(DataView.toString());
-				writer.close();
-
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			} finally {
-				try {writer.close();} catch (Exception ex) { System.out.println("Error while trying to close writer: " + ex); }
-			}
-
-		}
+//		}
 
 		System.out.println("FINISHED");
 	}
@@ -92,7 +95,7 @@ public final class RepetitiveRun implements Job{
 	 * @param timeUnit
 	 * @return
 	 */
-	public DataView request(Connection conn, DataViewQuery query, long timeout, TimeUnit timeUnit) {
+	public static DataView request(Connection conn, DataViewQuery query, long timeout, TimeUnit timeUnit) {
 
 		final CountDownLatch cdl = new CountDownLatch(1);
 		final DataViewTracker tracker = new DataViewTracker();

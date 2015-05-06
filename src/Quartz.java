@@ -17,7 +17,7 @@ public class Quartz {
 	        scheduler.start(); // and start it off
 
 	        JobDetail job = newJob(RepetitiveRun.class) // define the job and tie it to our HelloJob class
-	        	.requestRecovery()// ask scheduler to re-execute this job
+	        	//.requestRecovery()// ask scheduler to re-execute this job
 	            .withIdentity("job1", "group1")
 	            .build();
 
@@ -25,12 +25,12 @@ public class Quartz {
 	            .withIdentity("trigger1", "group1")
 	            .startNow()
 	            .withSchedule(simpleSchedule()
-	                    .withIntervalInSeconds(2) // how often should the job repeat (once every x seconds) - seems to be important for a job to begin once the previous one has finished
+	                    .withIntervalInSeconds(1) // how often should the job repeat (once every x seconds) - seems to be important for a job to begin once the previous one has finished
 	                    .repeatForever())
 	            .build();
 
 	        scheduler.scheduleJob(job, trigger); // Tell quartz to schedule the job using our trigger
-	        
+	
 	        try {
 				Thread.sleep(1200000000);
 			} catch (Exception e) {
