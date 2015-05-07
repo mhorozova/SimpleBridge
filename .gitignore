@@ -1,4 +1,5 @@
 *.class
+*.log
 
 # Package Files #
 *.jar
@@ -7,3 +8,5 @@
 
 outputFiles/
 /bin/
+
+../initialPaths

@@ -1,8 +1,11 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -22,35 +25,19 @@ public class Main {
 	static Set<String> initialXPaths;
 
 	static Set<String> allXPaths;
-	
+
 	 static DataViewQuery query;
 	 static DataView dataView;
 
-
-	//	private final DataViewTracker tracker = new DataViewTracker();
-	//	private final CountDownLatch cdl = new CountDownLatch(1);
+	static BufferedWriter writer;
 
 	public static void main(String[] args) throws InterruptedException{
 
-		/* 1. Connect to cluster */
-		conn = OpenAccess.connect("geneos.cluster://192.168.220.41:2551?username=admin&password=admin");
-
-
-		/* 2. Get a list of all DataViews */
-
-		/*
-		 * The customer is testing it with 10 XPaths matching 4000 DataViews
-		 * but would like to subscribe to 50+ XPahts matching 20 000+ DataViews in production
-		 */
-
-		/* customer defined list of 50+ XPaths that match 20 000+ DataViews */
-
-		/* make sure an XPath doesn't match too many DataViews
-		 * as that may overload the node?*/
 		initialXPaths = new HashSet<String>();
+		allXPaths = new HashSet<String>();
+		writer = null;
 
-		/* read the customer-defined XPaths
-		 * and store them in initialXPaths arraylist */
+		conn = OpenAccess.connect("geneos.cluster://192.168.220.41:2551?username=admin&password=admin");
 
 		try {
 			readPaths(initialXPaths, "initialPaths");
@@ -59,11 +46,26 @@ public class Main {
 			e.printStackTrace();
 		}
 
-		allXPaths = new HashSet<String>();
-
 		getAllMatchingDataViewsXPaths(conn, initialXPaths, allXPaths, 5);
 
-		//Quartz.startScheduler();
+		TimerTask timerTask = new TimerObject();
+		Timer timer = new Timer(true);
+		timer.schedule(timerTask, 0, 1);
+
+		try {
+			Thread.sleep(1200000000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+//		timer.cancel();
+//		System.out.println("TimerTask cancelled");
+//		try {
+//			Thread.sleep(3000);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+
 	}
 
 	/**
