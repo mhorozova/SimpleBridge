@@ -14,7 +14,6 @@ import com.itrsgroup.openaccess.Closable;
 import com.itrsgroup.openaccess.Connection;
 import com.itrsgroup.openaccess.ErrorCallback;
 import com.itrsgroup.openaccess.OpenAccess;
-import com.itrsgroup.openaccess.dataview.DataView;
 import com.itrsgroup.openaccess.dataview.DataViewChange;
 import com.itrsgroup.openaccess.dataview.DataViewQuery;
 
@@ -27,7 +26,7 @@ public class Main {
 	static Set<String> allXPaths;
 
 	 static DataViewQuery query;
-	 static DataView dataView;
+	 static String dataView;
 
 	static BufferedWriter writer;
 
@@ -47,24 +46,16 @@ public class Main {
 		}
 
 		getAllMatchingDataViewsXPaths(conn, initialXPaths, allXPaths, 5);
-
+		
 		TimerTask timerTask = new TimerObject();
 		Timer timer = new Timer(true);
-		timer.schedule(timerTask, 0, 1);
+		timer.schedule(timerTask, 0, 60000);
 
 		try {
 			Thread.sleep(1200000000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
-//		timer.cancel();
-//		System.out.println("TimerTask cancelled");
-//		try {
-//			Thread.sleep(3000);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
 
 	}
 

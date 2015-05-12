@@ -1,6 +1,10 @@
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Date;
 import java.util.Set;
 import java.util.TimerTask;
@@ -11,10 +15,8 @@ import com.itrsgroup.openaccess.Callback;
 import com.itrsgroup.openaccess.Closable;
 import com.itrsgroup.openaccess.Connection;
 import com.itrsgroup.openaccess.ErrorCallback;
-import com.itrsgroup.openaccess.dataview.DataView;
 import com.itrsgroup.openaccess.dataview.DataViewChange;
 import com.itrsgroup.openaccess.dataview.DataViewQuery;
-import com.itrsgroup.openaccess.dataview.DataViewTracker;
 
 
 public class TimerObject extends TimerTask {
@@ -59,24 +61,22 @@ public class TimerObject extends TimerTask {
 
 			Main.dataView = request(conn, Main.query, 2, SECONDS);
 
-			System.out.println(Main.dataView);
-			
-//			try {
-//				Main.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("outputFiles/"+s.replace('\\', '-').replace('/', '-').replace('"', ' '))));
-//				Main.writer.write(Main.dataView.toString());
-//				System.out.println("Writing to "+s);
-//
-//				Main.writer.flush();
-//				Main.writer.close();
-//
-//			} catch (IOException ex) {
-//				ex.printStackTrace();
-//			} finally {
-//				try {
-//
-//					Main.writer.close();
-//				} catch (Exception ex) { System.out.println("Error while trying to close writer: " + ex); }
-//			}
+			try {
+				Main.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("outputFiles/"+s.replace('\\', '-').replace('/', '-').replace('"', ' '))));
+				Main.writer.write(Main.dataView.toString());
+				System.out.println("Writing to "+s);
+
+				Main.writer.flush();
+				Main.writer.close();
+
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			} finally {
+				try {
+
+					Main.writer.close();
+				} catch (Exception ex) { System.out.println("Error while trying to close writer: " + ex); }
+			}
 
 		}
 
@@ -95,16 +95,16 @@ public class TimerObject extends TimerTask {
 	 * @param timeUnit
 	 * @return
 	 */
-	public static DataView request(Connection conn, DataViewQuery query, long timeout, TimeUnit timeUnit) {
+	public static String request(Connection conn, DataViewQuery query, long timeout, TimeUnit timeUnit) {
 
 		final CountDownLatch cdl = new CountDownLatch(1);
-		final DataViewTracker tracker = new DataViewTracker();
+		//final DataViewTracker tracker = new DataViewTracker();
 
 		Closable c = conn.execute(query,
 				new Callback<DataViewChange>() {
 			public void callback(final DataViewChange data) {
-				// mutable DataView
-				Main.dataView = tracker.update(data);
+				// mutable DataView - now a String!
+				Main.dataView = data.toString();
 				//System.out.println(DataView);
 				cdl.countDown();
 			}
