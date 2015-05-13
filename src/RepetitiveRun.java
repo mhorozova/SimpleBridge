@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -47,9 +46,9 @@ public class RepetitiveRun implements Job{
 			request(conn, Main.query, Main.waitInterval2, SECONDS);
 
 			try {
-				Main.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Main.outputFilesFolder+s.replace('\\', '-').replace('/', '-').replace('"', ' '))));
+				Main.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Main.outputFilesFolder+s.replace("\\", "").replace("/", "").replace("\"", ""))));
 				Main.writer.write(Main.dataView.toString());
-				System.out.println("Writing to "+s);
+				Main.log.debug("Writing to "+s);
 
 				Main.writer.flush();
 				Main.writer.close();
@@ -60,12 +59,12 @@ public class RepetitiveRun implements Job{
 				try {
 
 					Main.writer.close();
-				} catch (Exception ex) { System.out.println("Error while trying to close writer: " + ex); }
+				} catch (Exception ex) { Main.log.error("Error while trying to close writer: " + ex); }
 			}
 
 		}
 
-		System.out.println("FINISHED");
+		Main.log.debug("RUN FINISHED");
 	}
 	
 	/**
@@ -90,13 +89,12 @@ public class RepetitiveRun implements Job{
 			public void callback(final DataViewChange data) {
 				// mutable DataView - now a String!
 				Main.dataView = data.toString();
-				//System.out.println(DataView);
 				cdl.countDown();
 			}
 		},                 new ErrorCallback() {
 			@Override
 			public void error(final Exception exception) {
-				System.err.println("Error retrieving DataView while executing a request: " + exception);
+				Main.log.error("Error retrieving DataView while executing a request: " + exception);
 			}
 		}
 				);
@@ -105,14 +103,13 @@ public class RepetitiveRun implements Job{
 			cdl.await(timeout, timeUnit);
 			c.close();
 		} catch (InterruptedException e) {
-			System.out.println("Something's wrong... Interrupted while waiting for updates");
+			Main.log.warn("Something's wrong... Interrupted while waiting for updates");
 			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		System.out.println("Timer task started at:"+new Date());
 
 		try {
 			executeWrite(Main.conn, Main.allXPaths);
@@ -120,10 +117,6 @@ public class RepetitiveRun implements Job{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		//completeTask();
-
-		System.out.println("Timer task finished at:"+new Date());
 		
 	}
 	

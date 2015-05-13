@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
+
 import com.itrsgroup.openaccess.Callback;
 import com.itrsgroup.openaccess.Closable;
 import com.itrsgroup.openaccess.Connection;
@@ -17,11 +19,13 @@ import com.itrsgroup.openaccess.dataview.DataViewQuery;
 
 public class Main {
 	
+	static Logger log = Logger.getLogger(Main.class);
+	
 	static String initialPathsFile; // "initialPaths"
 	static String outputFilesFolder; // "outputFiles/"
 	static int repeatInterval; // 20
 	static int sleepInterval; // 999999
-	static int waitInterval1; // 20
+	static int waitInterval1; // 10
 	static int waitInterval2; // 2
 	static String connectionDetails; // "geneos.cluster://192.168.56.101:2551?username=mhorozova&password=mhorozova"
 	
@@ -36,15 +40,14 @@ public class Main {
 	static BufferedWriter writer;
 
 	public static void main(String[] args) throws InterruptedException{
-
+		
 		initialPathsFile = args[0];
 		outputFilesFolder = args[1];
 		repeatInterval = Integer.parseInt(args[2]);
 		sleepInterval = Integer.parseInt(args[3]);
 		waitInterval1 = Integer.parseInt(args[4]);
-		waitInterval1 = Integer.parseInt(args[5]);
+		waitInterval2 = Integer.parseInt(args[5]);
 		connectionDetails = args[6];
-		
 		
 		initialXPaths = new HashSet<String>();
 		allXPaths = new HashSet<String>();
@@ -53,7 +56,6 @@ public class Main {
 		conn = OpenAccess.connect(connectionDetails);
 		
 		try {
-			//readPaths(initialXPaths, "initialPaths");
 			readPaths(initialXPaths, initialPathsFile);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -74,7 +76,7 @@ public class Main {
 	 * @throws IOException
 	 */
 	static void readPaths(Set<String> a, String fileName) throws IOException{
-		System.out.println("Reading paths from "+fileName);
+		log.info("Reading paths from "+fileName);
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 		try {
 			StringBuilder sb = new StringBuilder();
@@ -87,8 +89,6 @@ public class Main {
 
 				line = br.readLine();
 			}
-			String everything = sb.toString();
-			System.out.println(everything);
 		} finally {
 			br.close();
 		}
@@ -130,7 +130,7 @@ public class Main {
 			new ErrorCallback() {
 				@Override
 				public void error(final Exception exception) {
-					System.err.println("Error retrieving DataView: " + exception);
+					log.error("Error retrieving DataView: " + exception);
 				}
 			}
 					);
@@ -141,12 +141,11 @@ public class Main {
 			try {
 				latch.await(time, TimeUnit.SECONDS); 
 			} catch (InterruptedException e) {
-				System.err
-				.println("Interrupted exception while waiting the latch");
+				log.error("Interrupted exception while waiting the latch");
 			} finally {
-				System.out.println("Finished with "+path);
+				log.debug("Finished with "+path);
 				closable.close();
-				System.out.println("Total number of DataViews' XPaths so far: " + allXPaths.size());
+				log.info("Total number of DataViews' XPaths so far: " + allXPaths.size());
 			}
 
 		}
