@@ -49,16 +49,14 @@ public class RepetitiveRun implements Job{
 				Main.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Main.outputFilesFolder+s.replace("\\", "").replace("/", "").replace("\"", ""))));
 				Main.writer.write(Main.dataView.toString());
 				Main.log.debug("Writing to "+s);
-
-				Main.writer.flush();
-				Main.writer.close();
-
+	
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			} finally {
 				try {
-
+					Main.writer.flush();
 					Main.writer.close();
+										
 				} catch (Exception ex) { Main.log.error("Error while trying to close writer: " + ex); }
 			}
 
