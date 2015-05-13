@@ -4,8 +4,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -18,11 +16,18 @@ import com.itrsgroup.openaccess.dataview.DataViewChange;
 import com.itrsgroup.openaccess.dataview.DataViewQuery;
 
 public class Main {
-
+	
+	static String initialPathsFile; // "initialPaths"
+	static String outputFilesFolder; // "outputFiles/"
+	static int repeatInterval; // 20
+	static int sleepInterval; // 999999
+	static int waitInterval1; // 20
+	static int waitInterval2; // 2
+	static String connectionDetails; // "geneos.cluster://192.168.56.101:2551?username=mhorozova&password=mhorozova"
+	
 	public static Connection conn;
 
 	static Set<String> initialXPaths;
-
 	static Set<String> allXPaths;
 
 	 static DataViewQuery query;
@@ -32,30 +37,32 @@ public class Main {
 
 	public static void main(String[] args) throws InterruptedException{
 
+		initialPathsFile = args[0];
+		outputFilesFolder = args[1];
+		repeatInterval = Integer.parseInt(args[2]);
+		sleepInterval = Integer.parseInt(args[3]);
+		waitInterval1 = Integer.parseInt(args[4]);
+		waitInterval1 = Integer.parseInt(args[5]);
+		connectionDetails = args[6];
+		
+		
 		initialXPaths = new HashSet<String>();
 		allXPaths = new HashSet<String>();
 		writer = null;
 
-		conn = OpenAccess.connect("geneos.cluster://192.168.220.41:2551?username=admin&password=admin");
-
+		conn = OpenAccess.connect(connectionDetails);
+		
 		try {
-			readPaths(initialXPaths, "initialPaths");
+			//readPaths(initialXPaths, "initialPaths");
+			readPaths(initialXPaths, initialPathsFile);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		getAllMatchingDataViewsXPaths(conn, initialXPaths, allXPaths, 5);
-		
-		TimerTask timerTask = new TimerObject();
-		Timer timer = new Timer(true);
-		timer.schedule(timerTask, 0, 60000);
-
-		try {
-			Thread.sleep(1200000000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		getAllMatchingDataViewsXPaths(conn, initialXPaths, allXPaths, waitInterval1);
+	
+		QuartzScheduler.startScheduler();
 
 	}
 
@@ -67,6 +74,7 @@ public class Main {
 	 * @throws IOException
 	 */
 	static void readPaths(Set<String> a, String fileName) throws IOException{
+		System.out.println("Reading paths from "+fileName);
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 		try {
 			StringBuilder sb = new StringBuilder();
@@ -74,7 +82,8 @@ public class Main {
 
 			while (line != null) {
 
-				a.add(line);
+				if(!line.startsWith("#"))
+					a.add(line);
 
 				line = br.readLine();
 			}

@@ -7,9 +7,12 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Date;
 import java.util.Set;
-import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 
 import com.itrsgroup.openaccess.Callback;
 import com.itrsgroup.openaccess.Closable;
@@ -19,25 +22,7 @@ import com.itrsgroup.openaccess.dataview.DataViewChange;
 import com.itrsgroup.openaccess.dataview.DataViewQuery;
 
 
-public class TimerObject extends TimerTask {
-
-	@Override
-	public void run() {
-		
-		System.out.println("Timer task started at:"+new Date());
-
-		try {
-			executeWrite(Main.conn, Main.allXPaths);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		//completeTask();
-
-		System.out.println("Timer task finished at:"+new Date());
-		
-	}
+public class RepetitiveRun implements Job{
 
 	/**
 	 * Iterates over a list of (expected
@@ -59,10 +44,10 @@ public class TimerObject extends TimerTask {
 
 			Main.query = DataViewQuery.create(s);
 
-			Main.dataView = request(conn, Main.query, 2, SECONDS);
+			request(conn, Main.query, Main.waitInterval2, SECONDS);
 
 			try {
-				Main.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("outputFiles/"+s.replace('\\', '-').replace('/', '-').replace('"', ' '))));
+				Main.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Main.outputFilesFolder+s.replace('\\', '-').replace('/', '-').replace('"', ' '))));
 				Main.writer.write(Main.dataView.toString());
 				System.out.println("Writing to "+s);
 
@@ -95,7 +80,7 @@ public class TimerObject extends TimerTask {
 	 * @param timeUnit
 	 * @return
 	 */
-	public static String request(Connection conn, DataViewQuery query, long timeout, TimeUnit timeUnit) {
+	public static void request(Connection conn, DataViewQuery query, long timeout, TimeUnit timeUnit) {
 
 		final CountDownLatch cdl = new CountDownLatch(1);
 		//final DataViewTracker tracker = new DataViewTracker();
@@ -123,8 +108,23 @@ public class TimerObject extends TimerTask {
 			System.out.println("Something's wrong... Interrupted while waiting for updates");
 			e.printStackTrace();
 		}
+	}
 
-		return Main.dataView;
+	@Override
+	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		System.out.println("Timer task started at:"+new Date());
+
+		try {
+			executeWrite(Main.conn, Main.allXPaths);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		//completeTask();
+
+		System.out.println("Timer task finished at:"+new Date());
+		
 	}
 	
 }
