@@ -44,7 +44,7 @@ public class Main {
 		initialPathsFile = args[0];
 		outputFilesFolder = args[1];
 		repeatInterval = Integer.parseInt(args[2]);
-		sleepInterval = Integer.parseInt(args[3]);
+		sleepInterval = convertToMilliseconds(args[3]);
 		waitInterval1 = Integer.parseInt(args[4]);
 		waitInterval2 = Integer.parseInt(args[5]);
 		connectionDetails = args[6];
@@ -145,10 +145,16 @@ public class Main {
 			} finally {
 				log.debug("Finished with "+path);
 				closable.close();
-				log.info("Total number of DataViews' XPaths so far: " + allXPaths.size());
+				log.info("Total number of XPaths matched so far: " + allXPaths.size());
 			}
 
 		}
+	}
+	
+	static int convertToMilliseconds(String s) {
+		int i = Integer.parseInt(s);
+		i = i * 1000;
+		return i;
 	}
 
 }
