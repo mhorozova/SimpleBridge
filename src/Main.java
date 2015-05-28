@@ -80,7 +80,6 @@ public class Main {
 		log.info("Reading paths from "+fileName);
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 		try {
-			StringBuilder sb = new StringBuilder();
 			String line = br.readLine();
 
 			while (line != null) {

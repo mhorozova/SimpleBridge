@@ -66,7 +66,7 @@ public class RepetitiveRun implements Job{
 	}
 	
 	/**
-	 * Executes a DataView query and returns a DataView object 
+	 * Executes a DataView query
 	 * 
 	 * If no DataViewChange is returned after a period of time
 	 * (e.g. 2 seconds) the count down latch times out
