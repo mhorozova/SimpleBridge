@@ -1,0 +1,23 @@
+<configuration>
+	<property name="LOG_FILENAME" value="openaccess-client" />
+
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_FILENAME}.log</file>
+        <encoder>
+            <pattern>%d %5p - %lo{0} - %m%n</pattern>
+        </encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_FILENAME}.%d{dd-MM-yyyy}.log</fileNamePattern>
+			<maxHistory>60</maxHistory>
+		</rollingPolicy>
+	</appender>
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d %5p - %lo{0} - %m%n</pattern>
+		</encoder>
+	</appender>
+	<root level="${log.level:-INFO}">
+		<appender-ref ref="FILE" />
+		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>

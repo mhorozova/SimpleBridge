@@ -8,11 +8,13 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.itrsgroup.openaccess.Callback;
 import com.itrsgroup.openaccess.Closable;
 import com.itrsgroup.openaccess.Connection;
+//import org.apache.log4j.Logger;
 import com.itrsgroup.openaccess.ErrorCallback;
 import com.itrsgroup.openaccess.OpenAccess;
 import com.itrsgroup.openaccess.dataview.DataViewChange;
@@ -20,7 +22,7 @@ import com.itrsgroup.openaccess.dataview.DataViewQuery;
 
 public class Main {
 	
-	static Logger log = Logger.getLogger(Main.class);
+    static Logger log;
 	
 	static String initialPathsFile; // "initialPaths"
 	static String outputFilesFolder; // "outputFiles/"
@@ -41,6 +43,8 @@ public class Main {
 	static BufferedWriter writer;
 
 	public static void main(String[] args) throws InterruptedException{
+		
+		log = LoggerFactory.getLogger(Main.class);
 		
 		initialPathsFile = args[0];
 		outputFilesFolder = args[1];
