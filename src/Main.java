@@ -22,7 +22,7 @@ import com.itrsgroup.openaccess.dataview.DataViewQuery;
 
 public class Main {
 	
-    static Logger log;
+    static Logger log = LoggerFactory.getLogger(Main.class);
 	
 	static String initialPathsFile; // "initialPaths"
 	static String outputFilesFolder; // "outputFiles/"
@@ -44,7 +44,7 @@ public class Main {
 
 	public static void main(String[] args) throws InterruptedException{
 		
-		log = LoggerFactory.getLogger(Main.class);
+		log.info("log is working");
 		
 		initialPathsFile = args[0];
 		outputFilesFolder = args[1];

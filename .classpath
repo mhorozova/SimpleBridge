@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="C:/Users/mhorozova/Downloads/quartz-2.2.1-distribution.tar/quartz-2.2.1-distribution/quartz-2.2.1/lib/quartz-2.2.1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/mhorozova/Downloads/quartz-2.2.1-distribution.tar/quartz-2.2.1-distribution/quartz-2.2.1/lib/quartz-jobs-2.2.1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/mhorozova/Downloads/slf4j-1.7.12/slf4j-1.7.12/slf4j-api-1.7.12.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mhorozova/Downloads/OA2/geneos-openaccess-client-2.0/logging"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
