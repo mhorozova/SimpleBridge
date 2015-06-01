@@ -43,9 +43,7 @@ public class Main {
 	static BufferedWriter writer;
 
 	public static void main(String[] args) throws InterruptedException{
-		
-		log.info("log is working");
-		
+				
 		initialPathsFile = args[0];
 		outputFilesFolder = args[1];
 		repeatInterval = Integer.parseInt(args[2]);
