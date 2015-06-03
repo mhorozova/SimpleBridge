@@ -8,6 +8,8 @@ import java.io.OutputStreamWriter;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -46,7 +48,8 @@ public class RepetitiveRun implements Job{
 			request(conn, Main.query, Main.waitInterval2, SECONDS);
 
 			try {
-				Main.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Main.outputFilesFolder+s.replace("\\", "").replace("/", "").replace("\"", ""))));
+				Main.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Main.outputFilesFolder+setOutputFilesFormat(s))));
+				Main.log.debug("Writing to "+Main.outputFilesFolder+setOutputFilesFormat(s));
 				Main.writer.write(Main.dataView.toString());
 				Main.log.debug("Writing to "+s);
 	
@@ -116,6 +119,58 @@ public class RepetitiveRun implements Job{
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public static String setOutputFilesFormat(String a){
+
+		String b = "";
+
+		Pattern p = Pattern.compile(Pattern.quote("[") + "(.*?)" + Pattern.quote("]"));
+		Matcher m = p.matcher(a);
+
+		while (m.find()){
+			b = b + "[" + betweenStrings(m.group(1))+"]";
+		}
+
+		if(!b.isEmpty())
+			return b;
+		else
+			return "[]";
+	}
+
+	/**
+	 * Returns the String between two quotes - e.g. "this is returned"
+	 * If there are more than one things between Strings it should return them separated by commas
+	 * 
+	 * e.g. " "123""456""789" "
+	 * should be returned as 123,456,789
+	 * 
+	 * @param s
+	 * @return
+	 */
+	public static String betweenStrings(String s){
+
+		String bQuotes = "";
+		String lastMatch = "";
+
+		Pattern pQuotes = Pattern.compile(Pattern.quote("\"") + "(.*?)" + Pattern.quote("\""));
+
+		Matcher mQuotes = pQuotes.matcher(s);
+		Matcher mReverse = pQuotes.matcher(new StringBuilder(s).reverse());
+
+		if(mReverse.find())
+			lastMatch = new StringBuilder(mReverse.group(1)).reverse().toString();
+
+		while(mQuotes.find()){
+
+			if(!lastMatch.equals(mQuotes.group(1))) // if it is not the last match
+				bQuotes = bQuotes + mQuotes.group(1) + ",";
+			else
+				bQuotes = bQuotes + mQuotes.group(1);
+		}
+
+		return bQuotes;
+
 	}
 	
 }

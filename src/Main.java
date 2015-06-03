@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.itrsgroup.openaccess.Callback;
 import com.itrsgroup.openaccess.Closable;
 import com.itrsgroup.openaccess.Connection;
-//import org.apache.log4j.Logger;
+
 import com.itrsgroup.openaccess.ErrorCallback;
 import com.itrsgroup.openaccess.OpenAccess;
 import com.itrsgroup.openaccess.dataview.DataViewChange;
