@@ -205,6 +205,7 @@ public class RepetitiveRun implements Job{
 		s = s + "\n";
 
 		for(DataViewRow row : rows){
+			s = s + row.getName()+"\01";
 			List<DataViewCell> cells = row.getCells();
 			for(DataViewCell cell : cells)
 				s = s + (cell.getValue()+"\01");
