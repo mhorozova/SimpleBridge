@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 import com.itrsgroup.openaccess.Callback;
 import com.itrsgroup.openaccess.Closable;
 import com.itrsgroup.openaccess.Connection;
-
 import com.itrsgroup.openaccess.ErrorCallback;
 import com.itrsgroup.openaccess.OpenAccess;
 import com.itrsgroup.openaccess.dataview.DataViewChange;
 import com.itrsgroup.openaccess.dataview.DataViewQuery;
+import com.itrsgroup.openaccess.dataview.DataViewTracker;
 
 public class Main {
 	
@@ -31,6 +31,9 @@ public class Main {
 	static int waitInterval1; // 10
 	static int waitInterval2; // 2
 	static String connectionDetails; // "geneos.cluster://192.168.56.101:2551?username=mhorozova&password=mhorozova"
+	
+    // Declare a tracker outside of the callback
+    final static DataViewTracker tracker = new DataViewTracker();
 	
 	public static Connection conn;
 

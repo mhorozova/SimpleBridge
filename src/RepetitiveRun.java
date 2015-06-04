@@ -55,7 +55,7 @@ public class RepetitiveRun implements Job{
 			try {
 				Main.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Main.outputFilesFolder+setOutputFilesFormat(s))));
 				Main.log.debug("Writing to "+Main.outputFilesFolder+setOutputFilesFormat(s));
-				Main.writer.write(Main.dataView.toString());
+				Main.writer.write(Main.dataView);
 
 			} catch (IOException ex) {
 				ex.printStackTrace();
@@ -93,7 +93,12 @@ public class RepetitiveRun implements Job{
 				new Callback<DataViewChange>() {
 			public void callback(final DataViewChange data) {
 				// mutable DataView - now a String!
-				Main.dataView = data.toString();
+				//Main.dataView = data.toString();
+				
+				// need to change the file contents format though...
+				DataView dv = Main.tracker.update(data);
+				Main.dataView = setContentsFormat(dv);
+				
 				cdl.countDown();
 			}
 		},                 new ErrorCallback() {
@@ -188,9 +193,9 @@ public class RepetitiveRun implements Job{
 		s = s + ("id="+setOutputFilesFormat(dv.getId())+"\n");                
 
 		for(DataViewHeadline headline : headlines)
-			s = s + (headline.getName()+"="+headline.getValue());
+			s = s + (headline.getName()+"="+headline.getValue()+"\n");
 
-		s = s + "\n\n";
+		s = s + "\n";
 
 		s = s + (rowHeader + "\01");
 
