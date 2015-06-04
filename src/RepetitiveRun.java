@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -19,8 +20,12 @@ import com.itrsgroup.openaccess.Callback;
 import com.itrsgroup.openaccess.Closable;
 import com.itrsgroup.openaccess.Connection;
 import com.itrsgroup.openaccess.ErrorCallback;
+import com.itrsgroup.openaccess.dataview.DataView;
+import com.itrsgroup.openaccess.dataview.DataViewCell;
 import com.itrsgroup.openaccess.dataview.DataViewChange;
+import com.itrsgroup.openaccess.dataview.DataViewHeadline;
 import com.itrsgroup.openaccess.dataview.DataViewQuery;
+import com.itrsgroup.openaccess.dataview.DataViewRow;
 
 
 public class RepetitiveRun implements Job{
@@ -51,15 +56,14 @@ public class RepetitiveRun implements Job{
 				Main.writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(Main.outputFilesFolder+setOutputFilesFormat(s))));
 				Main.log.debug("Writing to "+Main.outputFilesFolder+setOutputFilesFormat(s));
 				Main.writer.write(Main.dataView.toString());
-				Main.log.debug("Writing to "+s);
-	
+
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			} finally {
 				try {
 					Main.writer.flush();
 					Main.writer.close();
-										
+
 				} catch (Exception ex) { Main.log.error("Error while trying to close writer: " + ex); }
 			}
 
@@ -67,7 +71,7 @@ public class RepetitiveRun implements Job{
 
 		Main.log.debug("RUN FINISHED");
 	}
-	
+
 	/**
 	 * Executes a DataView query
 	 * 
@@ -118,9 +122,9 @@ public class RepetitiveRun implements Job{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	public static String setOutputFilesFormat(String a){
 
 		String b = "";
@@ -172,5 +176,36 @@ public class RepetitiveRun implements Job{
 		return bQuotes;
 
 	}
-	
+
+	public static String setContentsFormat(DataView dv){
+  		String s = "";
+		
+		List<DataViewHeadline> headlines = dv.getHeadlines();
+		String rowHeader = dv.getRowHeader();
+		List<String> columnHeaders = dv.getColumnHeaders();
+		List<DataViewRow> rows = dv.getRows();
+
+		s = s + ("id="+setOutputFilesFormat(dv.getId())+"\n");                
+
+		for(DataViewHeadline headline : headlines)
+			s = s + (headline.getName()+"="+headline.getValue());
+
+		s = s + "\n\n";
+
+		s = s + (rowHeader + "\01");
+
+		for(String columnHeader : columnHeaders)
+			s = s + (columnHeader+"\01");
+
+		s = s + "\n";
+
+		for(DataViewRow row : rows){
+			List<DataViewCell> cells = row.getCells();
+			for(DataViewCell cell : cells)
+				s = s + (cell.getValue()+"\01");
+			s = s + "\n";
+			
+		}
+		return s;
+	}
 }
