@@ -100,11 +100,11 @@ public class Main {
 	}
 
 	/**
-	 * Iterates over the customer-defined list of XPaths (expected 50+), each one of which
+	 * Iterates through the customer-defined list of XPaths (expected 50+), each one of which
 	 * matches 0 or many DataViews
 	 * 
 	 * Executes a query with each XPath and adds all matching DataViews' XPaths
-	 * to the set of all XPaths
+	 * to the set allXPaths
 	 * 
 	 * If the current query doesn't return anything for a certain amount of time
 	 * (e.g. 5 seconds), the count down latch times out

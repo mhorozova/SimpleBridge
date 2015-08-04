@@ -31,7 +31,7 @@ import com.itrsgroup.openaccess.dataview.DataViewRow;
 public class RepetitiveRun implements Job{
 
 	/**
-	 * Iterates over a list of (expected
+	 * Iterates through a list of (expected
 	 *  20 000+) Strings representing all XPaths, each one of which matches a single DataView
 	 *  
 	 * Creates a query with each XPath and then executes a request with that query
@@ -95,7 +95,6 @@ public class RepetitiveRun implements Job{
 				// mutable DataView - now a String!
 				//Main.dataView = data.toString();
 				
-				// need to change the file contents format though...
 				DataView dv = Main.tracker.update(data);
 				Main.dataView = setContentsFormat(dv);
 				
@@ -130,6 +129,14 @@ public class RepetitiveRun implements Job{
 
 	}
 
+	/**
+	 * Changes the format of the filenames
+	 * 
+	 * e.g. [Gateway][probe][managed entity][Type][sampler][dataview]
+	 * 
+	 * @param a
+	 * @return
+	 */
 	public static String setOutputFilesFormat(String a){
 
 		String b = "";
@@ -148,6 +155,8 @@ public class RepetitiveRun implements Job{
 	}
 
 	/**
+	 * Helper method
+	 * 
 	 * Returns the String between two quotes - e.g. "this is returned"
 	 * If there are more than one things between Strings it should return them separated by commas
 	 * 
@@ -182,6 +191,13 @@ public class RepetitiveRun implements Job{
 
 	}
 
+	/**
+	 * Changes the format of the file contents
+	 * 
+	 * @param dv
+	 * @return
+	 */
+	
 	public static String setContentsFormat(DataView dv){
   		String s = "";
 		
