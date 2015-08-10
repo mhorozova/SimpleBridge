@@ -27,7 +27,6 @@ public class Main {
 	static String initialPathsFile; // "initialPaths"
 	static String outputFilesFolder; // "outputFiles/"
 	static int repeatInterval; // 20
-	static int sleepInterval; // 999999
 	static int waitInterval1; // 10
 	static int waitInterval2; // 2
 	static String connectionDetails; // "geneos.cluster://192.168.56.101:2551?username=mhorozova&password=mhorozova"
@@ -50,10 +49,9 @@ public class Main {
 		initialPathsFile = args[0];
 		outputFilesFolder = args[1];
 		repeatInterval = Integer.parseInt(args[2]);
-		sleepInterval = convertToMilliseconds(args[3]);
-		waitInterval1 = Integer.parseInt(args[4]);
-		waitInterval2 = Integer.parseInt(args[5]);
-		connectionDetails = args[6];
+		waitInterval1 = Integer.parseInt(args[3]);
+		waitInterval2 = Integer.parseInt(args[4]);
+		connectionDetails = args[5];
 		
 		initialXPaths = new HashSet<String>();
 		allXPaths = new HashSet<String>();
@@ -117,6 +115,8 @@ public class Main {
 	private static void getAllMatchingDataViewsXPaths(Connection conn,
 			Set<String> initialXPaths, final Set<String> allXPaths, int time) {
 		for(final String path : initialXPaths){
+			
+			Main.log.info("Checking matching XPaths for "+path);
 
 			CountDownLatch latch = new CountDownLatch(1);
 
@@ -154,12 +154,6 @@ public class Main {
 			}
 
 		}
-	}
-	
-	static int convertToMilliseconds(String s) {
-		int i = Integer.parseInt(s);
-		i = i * 1000;
-		return i;
 	}
 
 }

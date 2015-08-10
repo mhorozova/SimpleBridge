@@ -32,7 +32,8 @@ public class QuartzScheduler {
         scheduler.scheduleJob(job, trigger); // Tell quartz to schedule the job using our trigger
         
         try {
-			Thread.sleep(Main.sleepInterval);
+        	while(true)
+			Thread.sleep(999999000);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
